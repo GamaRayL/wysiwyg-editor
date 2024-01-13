@@ -6,13 +6,13 @@
     <ui-button>
       <svg-arrow-forward/>
     </ui-button>
-    <ui-button>
+    <ui-button @click="changeTextToHeading">
       <svg-uppercase/>
     </ui-button>
     <ui-button>
       <svg-lowercase height="28" width="28"/>
     </ui-button>
-    <ui-button>
+    <ui-button @click="insertImage">
       <svg-image/>
     </ui-button>
     <ui-button text width="auto" height="auto">
@@ -30,7 +30,37 @@ import SvgLowercase from "@/shared/svg/SvgLowercase.vue";
 import SvgImage from "@/shared/svg/SvgImage.vue";
 
 export default {
-  components: {SvgImage, SvgLowercase, SvgUppercase, SvgArrowForward, SvgArrowBack, UiButton}
+  components: {SvgImage, SvgLowercase, SvgUppercase, SvgArrowForward, SvgArrowBack, UiButton},
+  data() {
+    return {
+      selected_text: window.getSelection(),
+    }
+  },
+  methods: {
+    insertImage() {
+      const img = document.createElement('img');
+      const range = window.getSelection().getRangeAt(0);
+      img.src = prompt("Enter Image URL:");
+      img.setAttribute('width', '100%')
+      range.insertNode(img);
+    },
+    changeTextToHeading() {
+      const paragraph = document.createElement('p');
+      paragraph.innerHTML = this.selected_text;
+      // console.log(this.selected_text);
+      // document.execCommand('bold', false, this.selected_text)
+    },
+    changeTextToParagraph() {
+    },
+    addImage() {
+    },
+    backToStore() {
+    },
+    forwardToStore() {
+    },
+    copyHTMLToClipboard() {
+    },
+  },
 }
 </script>
 
