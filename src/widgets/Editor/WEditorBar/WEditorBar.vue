@@ -1,7 +1,7 @@
 <template>
   <div class="bar">
     <ui-button>
-      <svg-arrow-back/>
+      <svg-arrow-back @click="backToStore"/>
     </ui-button>
     <ui-button>
       <svg-arrow-forward/>
@@ -9,13 +9,13 @@
     <ui-button @click="changeTextToHeading">
       <svg-uppercase/>
     </ui-button>
-    <ui-button>
+    <ui-button @click="changeTextToParagraph">
       <svg-lowercase height="28" width="28"/>
     </ui-button>
-    <ui-button @click="insertImage">
+    <ui-button @click="addImage">
       <svg-image/>
     </ui-button>
-    <ui-button text width="auto" height="auto">
+    <ui-button @click="copyHTMLToClipboard" text width="auto" height="auto">
       Скопировать HTML
     </ui-button>
   </div>
@@ -31,35 +31,77 @@ import SvgImage from "@/shared/svg/SvgImage.vue";
 
 export default {
   components: {SvgImage, SvgLowercase, SvgUppercase, SvgArrowForward, SvgArrowBack, UiButton},
-  data() {
-    return {
-      selected_text: window.getSelection(),
+  props: {
+    test: {
+      type: HTMLDivElement
     }
   },
-  methods: {
-    insertImage() {
+  setup() {
+    const selected_text = window.getSelection();
+
+    const changeTextToHeading = () => {
+      const heading = document.createElement('h1');
+      const range = window.getSelection().getRangeAt(0);
+
+      heading.innerHTML = selected_text.toString();
+      selected_text.deleteFromDocument();
+      range.insertNode(heading);
+
+      heading.normalize();
+
+      const newRange = document.createRange();
+
+      newRange.setStart(heading.childNodes[0], heading.childNodes[0].nodeValue.length);
+
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(newRange);
+    };
+
+    const changeTextToParagraph = () => {
+      const paragraph = document.createElement('p');
+      const range = window.getSelection().getRangeAt(0);
+
+      paragraph.innerHTML = selected_text.toString();
+      selected_text.deleteFromDocument();
+      range.insertNode(paragraph);
+
+      const newRange = document.createRange();
+      newRange.setStart(paragraph.childNodes[0], paragraph.childNodes[0].nodeValue.length);
+
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(newRange);
+    };
+    const addImage = () => {
       const img = document.createElement('img');
       const range = window.getSelection().getRangeAt(0);
       img.src = prompt("Enter Image URL:");
-      img.setAttribute('width', '100%')
+      img.setAttribute('width', '100%');
       range.insertNode(img);
-    },
-    changeTextToHeading() {
-      const paragraph = document.createElement('p');
-      paragraph.innerHTML = this.selected_text;
-      // console.log(this.selected_text);
-      // document.execCommand('bold', false, this.selected_text)
-    },
-    changeTextToParagraph() {
-    },
-    addImage() {
-    },
-    backToStore() {
-    },
-    forwardToStore() {
-    },
-    copyHTMLToClipboard() {
-    },
+    };
+    const copyHTMLToClipboard = async () => {
+      const html = document.documentElement.innerHTML;
+      try {
+        await navigator.clipboard.writeText(html);
+        console.log('HTML скопирован в буфер обмена.');
+      } catch (err) {
+        console.error('Ошибка при копировании: ', err);
+      }
+    };
+
+    const backToStore = () => {
+      
+    };
+    const forwardToStore = () => {
+    };
+
+    return {
+      changeTextToHeading,
+      changeTextToParagraph,
+      addImage,
+      backToStore,
+      forwardToStore,
+      copyHTMLToClipboard
+    }
   },
 }
 </script>
